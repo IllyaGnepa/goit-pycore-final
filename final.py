@@ -142,15 +142,33 @@ def input_error(func):
 
 @input_error
 def add_contact(args, book: AddressBook):
-    name, phone, *_ = args
+    
+    if not args or not args[0].strip():  # Перевірка на пусте ім'я
+        return "Error: Name cannot be empty. Please provide a valid name."
+    name = args[0].strip()
     record = book.find(name)
     message = "Contact updated."
+    
     if record is None:
         record = Record(name)
         book.add_record(record)
         message = "Contact added."
+    
+    # Запит на номер телефону
+    phone = input("Enter phone number (or press Enter to skip): ").strip()
     if phone:
         record.add_phone(phone)
+    
+    # Запит на електронну адресу
+    email = input("Enter email address (or press Enter to skip): ").strip()
+    if email:
+        record.add_email(email)
+    
+    # Запит на дату народження
+    birthday = input("Enter birthday (DD.MM.YYYY) (or press Enter to skip): ").strip()
+    if birthday:
+        record.add_birthday(birthday)
+    
     return message
 
 @input_error
@@ -256,11 +274,10 @@ def main():
     print("Welcome to the assistant bot!")
     while True:
         user_input = session.prompt("Enter a command: ")
-        
-        if not user_input.strip():  
-            print("No command entered. Please enter a command.")  
-            continue  
-        
+        if not user_input.strip():
+            print("No command entered. Please enter a command.")
+            continue
+
         command, args = parse_input(user_input)
 
         if command in ["close", "exit"]:
@@ -279,13 +296,7 @@ def main():
         elif command == "phone":
             print(show_phone(args, book))
 
-        elif command == "add-email":
-            print(add_email(args, book))
-
-        elif command == "change-email":
-            print(change_email(args, book))
-
-        elif command == "show-email":
+        elif command == "email":
             print(show_email(args, book))
 
         elif command == "all":
